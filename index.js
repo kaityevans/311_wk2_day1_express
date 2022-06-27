@@ -3,14 +3,15 @@ const bodyParser = require("body-parser");
 const app = express();
 // app.use(bodyParser())
 app.use(express.json());
+app.use(express.static("public"));
 const port = process.env.PORT || 4000;
 
 const { users } = require("./state");
 
 /* BEGIN - create routes here */
-app.get("/", (req, res) => {
-  res.send("<h1>Welcome to my server</h1>");
-});
+// app.get("/", (req, res) => {
+//   res.send("<h1>Welcome to my server</h1>");
+// });
 app.get("/users", (req, res) => {
   res.json(users);
 });
@@ -36,22 +37,27 @@ app.post("/users", (req, res) => {
 
 // the PUT Method
 app.put("/users/:id", (req, res) => {
-  const newPerson = {
-    ...person,
-    ...req.body,
+ let id = req.params.id;
+ let found = users.findIndex((element) => {
+  return element._id == id;
+ });
+  const { body } = req;
+  users[found] = {
+    ...users[found],
+    ...body
   }
-  console.log(person);
-  console.log(newPerson)
+  res.json(users)
 });
 
 // the DELETE Method
- app.delete('users/:id', (req, res) => {
-//   let id = req.params.id
-//   let found = users.find((element) => {
-//     return element._id == id
-//   })
-//   res.json(found)
-//  })
+ app.delete('/users/:id', (req, res) => {
+  let id = req.params.id
+  let found = users.findIndex((element) => {
+    return element._id == id
+  })
+  users.splice(found, 1)
+  res.json(users)
+ })
 /* END - create routes here */
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
